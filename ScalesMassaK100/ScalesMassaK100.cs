@@ -18,15 +18,22 @@ using System.Net.Sockets;
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             var address = IPAddress.Parse(ip.ToString());
             var remoteEP = new IPEndPoint(address, (int)port);
-            try
+
+            var result = socket.BeginConnect(remoteEP, null, null);
+            var timeout = 3000;
+            bool success = result.AsyncWaitHandle.WaitOne(timeout, true);
+            if (success)
             {
-                socket.Connect(remoteEP);
+                socket.EndConnect(result);
             }
-            catch (Exception ex)
+            else
             {
-                error = $"Ошибка : {ex}";
+                //throw new SocketException(10060); // Connection timed out.
+                                                  //или
+                error = $"Ошибка: Невозможно подключиться к весам" + new SocketException(10060);
                 return;
             }
+
             try
             {
                 var msg = new byte[] { 0x23 };
@@ -81,11 +88,11 @@ using System.Net.Sockets;
             }
             catch (Exception ex)
             {
-                error = $"Ошибка : {ex.Message}";
+                error = $"Ошибка: {ex.Message}";
             }
             finally
             {
-                socket.Disconnect(false);
+                socket.Close();
             }
         }
     }
