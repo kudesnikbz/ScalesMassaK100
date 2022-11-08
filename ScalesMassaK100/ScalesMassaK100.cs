@@ -85,7 +85,9 @@ using System.Net.Sockets;
                 stableFlag = (SqlBoolean)(answer[p + 5] == 1);
                 //Console.WriteLine($"Вec = {weight}, Стабильно = {stable},  время {(DateTime.Now - dt1).TotalMilliseconds} мс");
                 //Console.ReadKey();
-            }
+
+                //socket.Shutdown(SocketShutdown.Both);                
+        }
             catch (Exception ex)
             {
                 error = $"Ошибка: {ex.Message}";
